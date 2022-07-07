@@ -464,6 +464,7 @@ final class Backend extends Handler {
 	/**
 	 * Print sunrise install/activate prompt if needed.
 	 *
+	 * @since 1.2.1 Added writable check on wp-content & wp-config.
 	 * @since 1.1.3 Added checks for DOMAINER_*_SUNRISE flags.
 	 * @since 1.0.0
 	 */
@@ -494,7 +495,9 @@ final class Backend extends Handler {
 					<li><?php printf( __( 'Add <code>%1$s</code> to your site’s <code>%2$s</code> file.', 'domainer' ), "define('SUNRISE', true);", 'wp-config.php' ); ?></li>
 				<?php endif; ?>
 			</ol>
-			<p><?php printf( __( 'Domainer may be able to do this itself. <a href="%s">Click here</a> to give it a shot.', 'domainer' ), $url ); ?></p>
+			<?php if ( ( is_writable( WP_CONTENT_DIR ) || is_writable( WP_CONTENT_DIR . 'sunrise.php' ) ) && is_writable( ABSPATH . 'wp-config.php' ) ) : ?>
+				<p><?php printf( __( 'Domainer may be able to do this itself. <a href="%s">Click here</a> to give it a shot.', 'domainer' ), $url ); ?></p>
+			<?php endif; ?>
 		</div>
 		<?php
 	}

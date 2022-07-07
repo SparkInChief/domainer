@@ -153,6 +153,7 @@ final class Manager extends Handler {
 	/**
 	 * Update a domain.
 	 *
+	 * @since 1.3.0 Add checks for name/blog_id being specified.
 	 * @since 1.0.0
 	 *
 	 * @global \wpdb $wpdb The database abstraction class instance.
@@ -168,6 +169,14 @@ final class Manager extends Handler {
 
 		$domain_id = intval( $_POST['domain_id'] );
 		$data = $_POST['domainer_domain'];
+
+		if ( empty( $data['name'] ) ) {
+			wp_die( __( 'You must specify a domain name.', 'domainer' ) );
+		}
+
+		if ( empty( $data['blog_id'] ) ) {
+			wp_die( __( 'You must specify a blog to assign this to.', 'domainer' ) );
+		}
 
 		if ( ! from_network_admin() ) {
 			$domain = Registry::get_domain( $domain_id );
@@ -314,6 +323,7 @@ final class Manager extends Handler {
 	/**
 	 * Fields for the domain editor page.
 	 *
+	 * @since 1.3.0 Sort $site_options by blogname.
 	 * @since 1.1.0 Fixed get_sites() call to return ALL sites.
 	 * @since 1.0.0
 	 */
@@ -321,10 +331,14 @@ final class Manager extends Handler {
 		$sites = get_sites( array(
 			'number' => 0, // unlimited
 		) );
-		$site_options = array();
+
+		$site_options = array( '' => '&mdash; Select &mdash;' );
 		foreach ( $sites as $site ) {
 			$site_options[ $site->blog_id ] = $site->blogname;
 		}
+
+		// Sort by value
+		asort( $site_options, SORT_NATURAL|SORT_FLAG_CASE );
 
 		/**
 		 * Domain Settings

@@ -273,12 +273,23 @@ final class Installer extends Handler {
 	/**
 	 * Attempt to copy sunrise.php to /wp-content/
 	 *
+	 * @since 1.2.1 Added DOMAINER_INSTALLED_SUNRISE check.
 	 * @since 1.1.3 Added setting of DOMAINER_ACTIVATED_SUNRISE flag.
 	 * @since 1.0.0
 	 */
 	public static function activate_sunrise() {
 		// Abort if Sunrise is already active
 		if ( defined( 'SUNRISE' ) ) {
+			return;
+		}
+
+		// Abort if install of sunrise.php failed
+		if ( ! defined( 'DOMAINER_INSTALLED_SUNRISE' ) ) {
+			// Log the error
+			set_transient( 'domainer_sunrise_activate', array(
+				'success' => false,
+				'message' => sprintf( __( 'The <code>%s</code> file must be installed before <code>%s</code> can be modified.', 'domainer' ), 'sunrise.php', 'wp-config.php' ),
+			), 30 );
 			return;
 		}
 
